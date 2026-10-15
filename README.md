@@ -27,7 +27,7 @@ Docker 컨테이너와 vLLM을 이용해 개인 컴퓨터에서 로컬 AI 모델
 로컬 vLLM 위에 Flutter 앱과 Supabase를 얹어, 내 문서를 근거로 답하는 RAG 노트 앱 **NoteMind**를 만듭니다. 수업 저장소 [scadasystems/notemind-rag-course](https://github.com/scadasystems/notemind-rag-course)의 시작 코드에서 비어 있는 core 함수 12개(TODO)를 채웁니다.
 
 - 코드: [`notemind-lab/`](./notemind-lab/) (`app-starter/` Flutter 앱, `docker/` Supabase·vLLM, `start.py`)
-- 진행: TODO 1~10 완료 (문서 업로드 동작), TODO 11~12 남음
+- 진행: **TODO 1~12 완료** — 문서 업로드와 질문하기(RAG 스트리밍 답변) 동작. 단위 테스트 13개 통과, 통합 테스트 `pdf_test` 통과
 - 실행 순서, TODO별 설명, 문제 해결: [2026-10-08 · 10-15 수업 정리](./class-notes-2026-10-15.md)
 
 ```text

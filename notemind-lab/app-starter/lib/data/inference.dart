@@ -105,7 +105,50 @@ class InferenceSession {
     //   '[DONE]'을 받지 못했으면 Exception('응답 연결이 완료 전에 끊어졌습니다. ...')
     // - 확인: flutter test test/core_test.dart
     //   ('SSE refuses silently truncated answers', 'a socket that ends quietly ...')
-    throw UnimplementedError('TODO(12): chat');
+    check();
+    final request =
+        http.Request('POST', endpoint(config.chatUrl, 'chat/completions'))
+          ..headers.addAll(headers)
+          ..body = jsonEncode({
+            'model': config.model,
+            'messages': messages,
+            'stream': true,
+            'max_tokens': 768,
+            'temperature': 0.2,
+            'chat_template_kwargs': {'enable_thinking': false},
+          });
+    final response = await _client
+        .send(request)
+        .timeout(const Duration(seconds: 60));
+    check();
+    if (response.statusCode != 200) {
+      throw Exception(
+        '생성 요청 실패 (${response.statusCode}). '
+        '서버 로그와 모델 설정을 확인하세요.',
+      );
+    }
+    var done = false;
+    await for (final event in sseData(
+      response.stream.timeout(const Duration(seconds: 90)),
+    )) {
+      check();
+      if (event == '[DONE]') {
+        done = true;
+        break;
+      }
+      final json = jsonDecode(event) as Json;
+      if (json.containsKey('error')) {
+        throw Exception('추론 서버가 오류를 반환했습니다.');
+      }
+      final choices = json['choices'] as List? ?? [];
+      if (choices.isEmpty) continue;
+      final content = choices.first['delta']?['content'];
+      if (content is String && content.isNotEmpty) yield content;
+    } // await for 끝
+    check();
+    if (!done) {
+      throw Exception('응답 연결이 완료 전에 끊어졌습니다. 다시 시도하세요.');
+    }
   }
 
   Future<void> probe(String base, String model) async {

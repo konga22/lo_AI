@@ -69,5 +69,19 @@ Stream<String> sseData(Stream<List<int>> bytes) async* {
   // - 빈 줄을 만나면 지금까지 모은 값을 '\n'으로 합쳐 yield합니다.
   // - 스트림이 끝났을 때 남은 값이 있으면 마지막으로 yield합니다.
   // - 확인: flutter test test/core_test.dart ('SSE handles split UTF8 ...')
-  throw UnimplementedError('TODO(11): sseData');
+  final data = <String>[];
+  await for (final line
+      in bytes.transform(utf8.decoder).transform(const LineSplitter())) {
+    if (line.isEmpty) {
+      if (data.isNotEmpty) {
+        yield data.join('\n');
+        data.clear();
+      }
+    } else if (line.startsWith('data:')) {
+      var value = line.substring(5);
+      if (value.startsWith(' ')) value = value.substring(1);
+      data.add(value);
+    }
+  }
+  if (data.isNotEmpty) yield data.join('\n');
 }
