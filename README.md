@@ -22,10 +22,26 @@ Docker 컨테이너와 vLLM을 이용해 개인 컴퓨터에서 로컬 AI 모델
 6. Python OpenAI SDK의 `base_url`을 로컬 서버로 바꿔 응답을 확인합니다.
 7. 벤치마크 결과를 바탕으로 모델을 다시 선택하고 반복합니다.
 
+## NoteMind RAG 앱 실습
+
+로컬 vLLM 위에 Flutter 앱과 Supabase를 얹어, 내 문서를 근거로 답하는 RAG 노트 앱 **NoteMind**를 만듭니다. 수업 저장소 [scadasystems/notemind-rag-course](https://github.com/scadasystems/notemind-rag-course)의 시작 코드에서 비어 있는 core 함수 12개(TODO)를 채웁니다.
+
+- 코드: [`notemind-lab/`](./notemind-lab/) (`app-starter/` Flutter 앱, `docker/` Supabase·vLLM, `start.py`)
+- 진행: TODO 1~10 완료 (문서 업로드 동작), TODO 11~12 남음
+- 실행 순서, TODO별 설명, 문제 해결: [2026-10-08 · 10-15 수업 정리](./class-notes-2026-10-15.md)
+
+```text
+업로드: 파일 → 텍스트 추출 → 청크 분할 → 임베딩 → pgvector 저장
+질문:   질문 → 임베딩 → 벡터 검색(근거) → 근거 + 질문 → 채팅 모델 → 스트리밍 답변
+```
+
 ## 수업 기록
 
 - [2026-09-10 수업 정리](./class-notes-2026-09-10.md)
+- [2026-10-08 · 10-15 NoteMind RAG 앱 수업 정리](./class-notes-2026-10-15.md)
 
 ## 보안 주의사항
+
+`notemind-lab/docker/**/.env`의 Supabase 키와 vLLM API 키는 `.gitignore`로 제외되어 저장소에 올라가지 않습니다. 키가 필요하면 각자 `python docker/init-env.py`로 생성합니다.
 
 Hugging Face 토큰은 비밀번호처럼 취급합니다. 실제 토큰을 소스 코드, 터미널 캡처, 문서 또는 GitHub 저장소에 기록하지 않습니다. 공용 컴퓨터에서는 수업 후 토큰을 폐기하고 모든 서비스에서 로그아웃합니다.
