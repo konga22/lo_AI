@@ -18,16 +18,19 @@
 [![Tests](https://img.shields.io/badge/tests-13%20passed-brightgreen)](#-테스트)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](./notemind-lab/LICENSE)
 
-[**빠른 시작**](#-빠른-시작) · [**동작 원리**](#-동작-원리) · [**튜토리얼**](#-튜토리얼-todo-112) · [**테스트**](#-테스트) · [**문제 해결**](#-문제-해결) · [**수업 기록**](#-수업-기록)
+[**빠른 시작**](#-빠른-시작) · [**동작 원리**](#-동작-원리) · [**튜토리얼**](#-튜토리얼-todo-112) · [**테스트**](#-테스트) · [**실제 테스트**](#-실제-테스트) · [**문제 해결**](#-문제-해결) · [**수업 기록**](#-수업-기록)
 
 <br>
 
 <table>
   <tr>
-    <td align="center"><img src="docs/images/home.png" width="260" alt="문서함 화면"><br><sub><b>문서함</b> · PDF/TXT/MD 업로드</sub></td>
-    <td align="center"><img src="docs/images/settings.png" width="260" alt="연결 설정 화면"><br><sub><b>연결 설정</b> · 세 서버 모두 연결됨</sub></td>
+    <td align="center"><img src="docs/images/01-documents.png" width="230" alt="PDF 업로드 완료"><br><sub><b>① 업로드</b> · 6쪽 PDF → 24개 청크</sub></td>
+    <td align="center"><img src="docs/images/02-rag-answer.png" width="230" alt="근거가 달린 답변"><br><sub><b>② 질문</b> · 근거 [1]이 달린 답변</sub></td>
+    <td align="center"><img src="docs/images/03-source.png" width="230" alt="근거 원문"><br><sub><b>③ 근거 확인</b> · 1페이지 · 유사도 61.6%</sub></td>
   </tr>
 </table>
+
+<sub>📱 Android 에뮬레이터에서 실제로 실행한 화면입니다. 더 많은 테스트 화면은 <a href="#-실제-테스트">실제 테스트</a>에서 볼 수 있습니다.</sub>
 
 </div>
 
@@ -368,16 +371,43 @@ flutter test integration_test/pdf_test.dart -d emulator-5554 `
 > [!NOTE]
 > `app_test`의 ⚠️는 코드 문제가 아닙니다. 답("미래관 402호")은 맞지만 **Qwen2.5-7B**가 `[1]` 인용 지시를 따르지 않았습니다. 수업 기본 모델 **Qwen3-4B-AWQ**(`enable_thinking` 옵션도 Qwen3용)에서는 통과할 가능성이 높습니다.
 
-### 직접 질문해 보기
+## 📸 실제 테스트
 
-에뮬레이터에 PDF를 넣고(`adb push 파일.pdf /sdcard/Download/`) **문서함 → + 노트 업로드 → Downloads**에서 고른 뒤 **이 노트에 질문하기**를 누릅니다. 아래 예시는 수업 자료 `NoteMind-Earth-Space.pdf`(지구와 우주 심화 읽기, 6쪽) 기준이며, 수업 자료는 이 저장소에 포함하지 않았습니다.
+수업 자료 `NoteMind-Earth-Space.pdf`(지구와 우주 심화 읽기, 6쪽)를 에뮬레이터에서 직접 업로드하고 질문한 결과입니다. 수업 자료는 이 저장소에 포함하지 않았습니다.
 
-| 질문 | 기대하는 동작 |
-| :-- | :-- |
-| 외핵을 S파가 통과하지 못하는 이유는? | 🔎 벡터 검색으로 1페이지 근거를 찾아 답함 |
-| 이 문서를 요약해줘 | 🧠 요약 요청 → 검색 없이 문서 앞부분으로 요약 |
-| 관측 실습 제출 마감은 언제야? | 📅 개정 이력의 옛 값에 속지 않고 11월 18일 18:00 |
-| 담당 교사 연락처 알려줘 | 🛡️ 문서에 없으므로 "자료에 없습니다." |
+| # | 시나리오 | 거치는 TODO | 결과 |
+| :-: | :-- | :-: | :-- |
+| ① | PDF 업로드 | 1 · 2 · 3 · 4 | ✅ `검색 준비 완료 · 24개 청크` |
+| ② | "외핵을 S파가 통과하지 못하는 이유는?" | 3 · 6 · 7 · 9 · 11 · 12 | ✅ 그림자 지역까지 설명하고 `[1]` 인용 |
+| ③ | 근거 카드 `[1]` 열기 | 2 · 9 | ✅ `[PDF 1페이지]` 원문 · 검색 유사도 61.6% |
+| ④ | "이 자료의 핵심 내용을 설명해줘" | 8 · 10 · 12 | ✅ 검색 없이 앞 8개 청크로 요약 · "자료가 길어 앞부분을 중심으로" 안내 |
+| ⑤ | "담당 교사 연락처 알려줘" | 9 · 12 | ✅ 문서에 없으므로 "자료에 없습니다." |
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/01-documents.png" width="170" alt="업로드 완료"><br><sub>① 업로드</sub></td>
+    <td align="center"><img src="docs/images/02-rag-answer.png" width="170" alt="RAG 답변"><br><sub>② 벡터 검색 답변</sub></td>
+    <td align="center"><img src="docs/images/03-source.png" width="170" alt="근거 원문"><br><sub>③ 근거 원문</sub></td>
+    <td align="center"><img src="docs/images/04-overview.png" width="170" alt="요약 답변"><br><sub>④ 요약 요청</sub></td>
+    <td align="center"><img src="docs/images/05-no-evidence.png" width="170" alt="자료에 없습니다"><br><sub>⑤ 근거 없음</sub></td>
+  </tr>
+</table>
+
+<details>
+<summary><b>직접 해 보기</b></summary>
+
+<br>
+
+```powershell
+adb push NoteMind-Earth-Space.pdf /sdcard/Download/
+```
+
+**문서함 → + 노트 업로드 → Downloads**에서 파일을 고르고, 준비가 끝나면 **이 노트에 질문하기**를 누릅니다. 위 질문 외에 "관측 실습 제출 마감은 언제야?"도 물어보세요. 개정 이력의 옛 날짜에 속지 않고 **11월 18일 18:00**으로 답해야 합니다.
+
+> [!TIP]
+> `adb shell input text`로는 한글을 입력할 수 없습니다. 에뮬레이터는 PC 클립보드를 공유하므로, PC에서 질문을 복사한 뒤 입력란을 길게 눌러 **Paste**하면 됩니다.
+
+</details>
 
 <p align="right"><a href="#top">⬆ 맨 위로</a></p>
 
@@ -443,7 +473,7 @@ lo_AI/
 ├── README.md
 ├── class-notes-2026-09-10.md        # 1부: Docker · GPU · vLLM · 양자화 · llmfit
 ├── class-notes-2026-10-15.md        # 2부: NoteMind 수업 상세 기록
-├── docs/images/                     # README 스크린샷
+├── docs/images/                     # 에뮬레이터 실제 테스트 화면
 └── notemind-lab/
     ├── app-starter/                 # Flutter 앱
     │   ├── lib/core/                #   text_processing · document_import · config
